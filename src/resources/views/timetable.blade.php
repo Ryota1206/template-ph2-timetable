@@ -5,9 +5,11 @@
     <title>授業の詳細 | POSSE大学</title>
 </head>
 <main>
-    <h1>時間割</h1>
+    <h1>POSSE大学 時間割</h1>
 <table>
+    
     <thead>
+        <th>区画1：月曜日の授業</th>
         <tr>
             <th>時限</th>
             <th>授業名</th>
@@ -29,6 +31,7 @@
 </table>
 <table>
     <thead>
+        <th>区画２：必修科目
         <tr>
             <th>授業名</th>
             <th>単位数</th>
