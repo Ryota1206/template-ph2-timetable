@@ -23,6 +23,19 @@
     <td>{{$entry->period}}</td>
     <td>{{$entry->title}}</td>
     <td>{{$entry->room}}</td>
+    <td>
+        <form action="/entries/{{$entry->id}}/edit"  method="GET">
+            <button type="submit">編集</button>
+</form>
+</td>
+<td>
+    <form action="/entries/{{$entry->id}}" method="POST">
+        @csrf
+        @method('DELETE')
+        <button type="submit">削除</button>
+</form>
+</td>
+
 </tr>
 @empty
 <tr>
