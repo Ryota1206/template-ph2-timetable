@@ -6,88 +6,51 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 use App\Models\TimetableEntry;
+use App\Models\Course;
 
 class TimetableEntryController extends Controller
 {
     public function store(Request $request){
-        $validated = $request->validate([
-            'day'=>'required|integer|between:1,5',
-            'period'=>'required|integer|between:1,6',
-            'title'=>'required',
-            'room'=>'nullable',
-            ], [
-            'day.required' => '曜日を入力してください。',
-            'day.integer' => '1~5の整数で入力してください。',
-            'day.between' => '曜日は1~5で入力してください',
-            'period.required'=>'時限を入力してください',
-            'period.integer'=>'1~6の整数で入力してください',
-            'period.integer'=>'1~6の整数で入力してください',
-            'title.required'=>'授業名を入力してください',
-        ], [
-            'day' => '曜日',
-            'period' => '時限',
-            'title' => '授業名',
-            'room' => '教室',]);
-            $taken =TimetableEntry::where('day',$request->input('day'))
-            ->where('period',$request->input('period'))
-            ->exists();
-            if ($taken){
-                return back()->withErrors([
-                    'period'=>'その曜日・時限にはすでに授業が登録されています',
-                ])->withInput();
-            }
-                    TimetableEntry::create($validated);
-        return redirect('/entries');}
+        $validated=$request->validate([
+            'course_id'=>'required|exists:courses,id',
+        ],[
+            'course_id.required'=>'授業を一覧から選んでください',
+            'course_id.exists'=>'授業を一覧から選んでください',
+        ]);
+        $course=Course::findOrFail($request->input('course_id'));
+        $taken=TimetableEntry::whereHas('course',function($query)use($course){
+            $query->where('day',$course->day)
+            ->where('period',$course->period);
+        })
+        ->exists();
+        if($taken){
+            return back()->withErrors([
+                'course_id'=>'その曜日・時限にはすでに授業が登録されています',
+            ])->withInput();
+        }
+        TimetableEntry::create($validated);
+        return redirect('/entries');
+    }
     public function index(){
-        $entries =TimetableEntry::orderBy('day')
-        ->orderBy('period')
-        ->get();
+        $entries=TimetableEntry::with('course')->get()
+        ->sortBy(fn($entry)=>
+        $entry->course->day*10
+        +$entry->course->period);
+
         return view('entries.index',[
             'entries'=>$entries
         ]);
     }
     public function create()
     {
-        return view('entries.create');
-    }
-    public function edit($id)
-    {
-        $entry=TimetableEntry::findOrFail($id);
-        return view('entries.edit',['entry'=>$entry]);
-    }
-    public function update(Request $request,$id){
-    $entry=TimetableEntry::findOrFail($id);
-    $entry->update($request->only(
-        ['day','period','title','room']
-    )); $validated = $request->validate([
-            'day'=>'required|integer|between:1,5',
-            'period'=>'required|integer|between:1,6',
-            'title'=>'required',
-            'room'=>'nullable',
-            ], [
-            'day.required' => '曜日を入力してください。',
-            'day.integer' => '1~5の整数で入力してください。',
-            'day.between' => '曜日は1~5で入力してください',
-            'period.required'=>'時限を入力してください',
-            'period.integer'=>'1~6の整数で入力してください',
-            'period.integer'=>'1~6の整数で入力してください',
-            'title.required'=>'授業名を入力してください',
-        ], [
-            'day' => '曜日',
-            'period' => '時限',
-            'title' => '授業名',
-            'room' => '教室',]);
-            $taken =TimetableEntry::where('day',$request->input('day'))
-            ->where('period',$request->input('period'))
-            ->exists();
-            if ($taken){
-                return back()->withErrors([
-                    'period'=>'その曜日・時限にはすでに授業が登録されています',
-                ])->withInput();
-            }
-                    TimetableEntry::create($validated);
-        return redirect('/entries');
-    return redirect('/entries');
+        $courses=Course::with('entries')
+        ->orderBy('day')
+        ->orderBy('period')
+        ->orderBy('id')
+        ->get();
+        return view('entries.create',[
+            'courses'=>$courses
+        ]);
     }
     public function destroy($id){
         $entry =TimetableEntry::findOrFail($id);

@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class TimetableEntry extends Model
 {
     protected $fillable =[
-        'day',
-        'period',
-        'title',
-        'room'
+        'id',
+        'course_id',
+        'user_id'
     ];
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
 }
