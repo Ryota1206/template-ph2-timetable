@@ -6,6 +6,10 @@
 </head>
 <body>
 <main>
+    <form action="/logout" method="POST">
+        @csrf
+        <button type="submit">ログアウト</button>
+    </form>
     <h1>自分の時間割</h1>
     <form action="/courses" method="GET">
         <button type="submit">授業を登録する</button>
