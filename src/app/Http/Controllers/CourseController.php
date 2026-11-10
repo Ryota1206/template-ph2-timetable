@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class CourseController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
         DB::enableQueryLog();
-        $courses=Course::orderBy('day')
+        $courses=Course::with(['entries' => fn ($query) => $query->where('user_id', $request->user()->id)])->orderBy('day')
         ->orderBy('period')
         ->orderBy('id')
         ->get();
