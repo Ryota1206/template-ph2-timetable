@@ -175,7 +175,10 @@ class AuthenticationTest extends TestCase
         $this->from('/entries/create')->post('/entries', ['course_id' => 2])->assertSessionHasErrors('course_id');
         $this->actingAs($other)->get('/entries')->assertOk()->assertDontSee('情報学');
         $this->get('/courses')->assertOk()->assertDontSee('登録済み');
-        $this->delete('/entries/'.$entry->id)->assertForbidden();
+        $response = $this->delete('/entries/'.$entry->id);
+        dump($response->getStatusCode());
+        $response->assertForbidden();
+
         $this->post('/entries', ['course_id' => 1])->assertRedirect('/entries');
         $this->assertDatabaseCount('timetable_entries', 2);
         $this->actingAs($owner)->delete('/entries/'.$entry->id)->assertRedirect('/entries');
