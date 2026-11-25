@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    
     <title>授業一覧を表示</title>
 </head>
 <body>
@@ -13,6 +14,13 @@
         @endforeach
     </ul>
 @endif
+
+<form method="GET" action="/courses">
+    <label for="course-search">授業名・担当教員名</label>
+    <input type="search" id="course-search" name="q" value="{{ $keyword }}">
+    <button type="submit">検索</button>
+</form>
+
         <table border="1">
             <tr>
                 <th>曜日</th>
@@ -22,11 +30,13 @@
                 <th>教室</th>
                 <th>登録状況</th>
 </tr>
-@foreach($courses as $course)
+@forelse($courses as $course)
 <tr>
     <td>{{$course->day}}</td>
     <td>{{$course->period}}</td>
-    <td>{{$course->name}}</td>
+    <td>
+        <a href="/courses/{{$course->id}}">
+        {{$course->name}}</a></td>
     <td>{{$course->teacher}}</td>
     <td>{{$course->room}}</td>
     <td>@if($course->entries->isNotEmpty())
@@ -39,7 +49,11 @@
 </form>
 @endif</td>
 </tr>
-@endforeach
+@empty
+<tr>
+    <td colspan="6">該当する授業はありません。</td>
+</tr>
+@endforelse
 </table>
 </main>
 </body>
