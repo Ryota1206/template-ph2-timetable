@@ -21,6 +21,7 @@
         <th>授業名</th>
         <th>担当教員</th>
         <th>教室</th>
+        <th>受講者数</th>
 </tr>
 @forelse ($entries as $entry)
 <tr>
@@ -29,6 +30,7 @@
     <td>{{$entry->course->name}}</td>
     <td>{{$entry->course->teacher}}</td>
     <td>{{$entry->course->room}}</td>
+    <td>{{$entry->course->users_count}}人</td>
     <td>
         <form action="/entries/{{$entry->id}}/edit"  method="GET">
 </form>

@@ -18,6 +18,9 @@
 <form method="GET" action="/courses">
     <label for="course-search">授業名・担当教員名</label>
     <input type="search" id="course-search" name="q" value="{{ $keyword }}">
+    @if($tagId !==null)
+    <input type="hidden" name="tag_id" value="{{$tagId}}">
+    @endif
     <button type="submit">検索</button>
 </form>
 
@@ -28,6 +31,8 @@
                 <th>授業名</th>
                 <th>担当教員</th>
                 <th>教室</th>
+                <th>タグ</th>
+                <th>気になる人数</th>
                 <th>登録状況</th>
 </tr>
 @forelse($courses as $course)
@@ -39,6 +44,26 @@
         {{$course->name}}</a></td>
     <td>{{$course->teacher}}</td>
     <td>{{$course->room}}</td>
+    <td>@foreach ($course->tags as $tag)
+        <a href="/courses/?tag_id={{$tag->id}}&q={{$keyword}}">
+        {{$tag->name}}</a>
+        @endforeach</td>
+    <td>{{$course->favorited_by_users_count}}人
+        @if($course->is_favorited)
+        <form method="POST" action="/courses/{{$course->id}}/favorite">
+            @csrf
+            <input type="hidden" name="favorite_form_user_id" value="{{ auth()->id() }}">
+            @method('DELETE')
+        <button type="submit">★ 気になるを解除</button>
+</form>
+        @else
+        <form method="POST" action="/courses/{{$course->id}}/favorite">
+            @csrf
+            <input type="hidden" name="favorite_form_user_id" value="{{ auth()->id() }}">
+        <button type="submit">☆ 気になるに追加</button>
+</form>
+        @endif
+    </td>
     <td>@if($course->entries->isNotEmpty())
     登録済み
 @else
@@ -51,7 +76,7 @@
 </tr>
 @empty
 <tr>
-    <td colspan="6">該当する授業はありません。</td>
+    <td colspan="8">該当する授業はありません。</td>
 </tr>
 @endforelse
 </table>

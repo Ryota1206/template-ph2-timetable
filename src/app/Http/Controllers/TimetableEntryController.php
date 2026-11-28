@@ -33,7 +33,7 @@ class TimetableEntryController extends Controller
         return redirect('/entries');
     }
     public function index(Request $request){
-        $entries=TimetableEntry::where('user_id', $request->user()->id)->with('course')->get()
+        $entries=TimetableEntry::where('user_id', $request->user()->id)->with(['course'=>fn($query)=>$query->withCount('users')])->get()
         ->sortBy(fn($entry)=>
         $entry->course->day*10
         +$entry->course->period);

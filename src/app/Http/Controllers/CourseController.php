@@ -13,7 +13,14 @@ class CourseController extends Controller
         DB::enableQueryLog();
         $keyword = $request->query('q');
         $keyword = is_string($keyword) ? trim($keyword) : '';
-        $courseQuery = Course::with(['entries' => fn ($query) => $query->where('user_id', $request->user()->id)]);
+        $tagId = $request->query('tag_id');
+        $courseQuery = Course::with(['entries' => fn ($query) => $query->where('user_id', $request->user()->id),
+        'tags']);
+        $courseQuery->withCount('favoritedByUsers');
+        $courseQuery->withExists([
+            'favoritedByUsers as is_favorited'=> fn($query)=>
+            $query->where('users.id',$request->user()->id),
+        ]);
 
         if ($keyword !== '') {
             // PostgreSQL の LIKE で、入力された記号を文字そのものとして扱う。
@@ -21,6 +28,11 @@ class CourseController extends Controller
             $courseQuery->where(function ($query) use ($pattern) {
                 $query->where('name', 'like', $pattern)
                     ->orWhere('teacher', 'like', $pattern);
+            });
+        }
+        if ($tagId !==null){
+            $courseQuery->whereHas('tags',function ($query) use($tagId){
+                $query->where('tags.id',$tagId);
             });
         }
 
@@ -34,6 +46,7 @@ class CourseController extends Controller
         return view('courses.index',[
             'courses'=>$courses,
             'keyword'=>$keyword,
+            'tagId'=>$tagId,
         ]);
     }
     public function show(Course $course)

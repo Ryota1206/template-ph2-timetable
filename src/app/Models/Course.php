@@ -15,5 +15,16 @@ class Course extends Model{
     {
         return $this->hasMany(Review::class);
     }
-
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'timetable_entries');
+    }
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(User::class,'course_favorites');
+    }
 }

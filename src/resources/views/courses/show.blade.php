@@ -12,6 +12,16 @@
 <h2>{{$course->period}}限</h2>
 <h2>{{$course->teacher}}</h2>
 <h2>{{$course->room}}</h2>
+<h2>@foreach($course->tags as $tag)
+    {{$tag->name}}
+    @endforeach</h2>
+
+<h2>受講者</h2>
+<p>受講者数:{{$course->users->count()}}人</p>
+    @foreach($course->users as $user)
+    <p>{{$user->name}}</p>
+    @endforeach
+    
 
 <h1>レビューを投稿する</h1>
 <form action="/reviews" method="POST">
